@@ -8,7 +8,7 @@ import answerImg from '../assets/images/answer.svg';
 import { Button } from '../components/Button';
 import { Question } from '../components/Question';
 import { RoomCode } from '../components/RoomCode';
-// import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import { useRoom } from '../hooks/useRoom';
 import { database } from '../services/firebase';
 
@@ -19,7 +19,7 @@ type RoomParams = {
 }
 
 export function AdminRoom() {
-  // const { user } = useAuth();
+  const { user } = useAuth();
   const history = useHistory()
   const params = useParams<RoomParams>();
   const roomId = params.id;
@@ -46,10 +46,16 @@ export function AdminRoom() {
     })
   }
 
-  async function handleHighlightQuestion(questionId: string) {
-    await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
-      isHighlighted: true,
-    })
+  async function handleHighlightQuestion(questionId: string, isHighlighted: boolean) {
+    if (isHighlighted) {
+      await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+        isHighlighted: false,
+      })
+    } else {
+      await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+        isHighlighted: true,
+      })
+    }
   }
 
   return (
@@ -90,7 +96,7 @@ export function AdminRoom() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleHighlightQuestion(question.id)}
+                      onClick={() => handleHighlightQuestion(question.id, question.isHighlighted)}
                     >
                       <img src={answerImg} alt="Dar destaque à pergunta" />
                     </button>
